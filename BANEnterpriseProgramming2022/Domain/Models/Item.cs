@@ -28,5 +28,7 @@ namespace Domain.Models
         public virtual Category Category { get; set; }
 
         public string ImagePath { get; set; }
+
+        public string Supplier { get; set; }
     }
 }

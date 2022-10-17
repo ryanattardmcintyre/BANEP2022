@@ -1,4 +1,5 @@
-﻿using DataAccess.Repositories;
+﻿using BusinessLogic.ViewModels;
+using DataAccess.Repositories;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,7 +19,7 @@ namespace BusinessLogic.Services
 
         }
 
-        public void AddNewItem(string name, string description, double price, int categoryId,int stock =0)
+        public void AddNewItem(string name, string description, double price, int categoryId,int stock =0, string path = "")
         {
            // ItemsRepository itemRepository = new ItemsRepository(new DataAccess.Context.ShoppingCartContext(new Microsoft.EntityFrameworkCore.DbContextOptions<DataAccess.Context.ShoppingCartContext>()));
             
@@ -33,7 +34,8 @@ namespace BusinessLogic.Services
                 Description = description,
                 Name = name,
                 Price = price,
-                Stock = stock
+                Stock = stock,
+                ImagePath = path
             }); 
         }
 
@@ -44,7 +46,35 @@ namespace BusinessLogic.Services
             if (item != null) itemRepository.DeleteItem(item);
         }
 
-        /*public IQueryable<Item> GetItems()
+        public IQueryable<ListItemsViewModel> GetItems()
+        {
+            /*
+             * select i.Descripton,...... as .....
+             * from Items
+             * where
+             * order by
+             * */
+
+            //to do
+
+            var result = from i in itemRepository.GetItems()
+                         select new ListItemsViewModel()
+                         {
+                             Description = i.Description,
+                             ImagePath = i.ImagePath,
+                             Name = i.Name,
+                             Price = i.Price,
+                             Rating = i.Rating,
+                             Stock = i.Stock,
+                             Id = i.Id,
+                             Category = i.Category.Title
+                         };
+
+            return result;
+        
+        } 
+
+       /* public IQueryable<ListItemsViewModel> Search(string keyword)
         { }*/
     }
 }

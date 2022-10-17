@@ -1,4 +1,6 @@
+using BusinessLogic.Services;
 using DataAccess.Context;
+using DataAccess.Repositories;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -37,6 +39,27 @@ namespace WebApplication1
            
             services.AddControllersWithViews();
             services.AddRazorPages();
+
+
+            //to inform the startup (aka the injector class) about the service classes and the client classes
+            //to inject and therefore initialize (e.g. ItemsRepository, ItemsServicess)
+            /* Singleton: IoC container will create and share a single instance of a service throughout the application's lifetime.
+             *note: if there are 50 users to browse the websit at the same time and all of them are using ItemsRepository at the same time
+             *      only 1 ItemsRepository instance will be created
+             *    note: if there are 50 users doing checkout at the same time the application will create 1 instance
+             *    
+               Transient: The IoC container will create a new instance of the specified service type every time you ask for it.
+            note: if during the checkout the method ask for ItemsReposiotry 5x then 5 instances will be created;
+            note: if there are 50 users doing checkout at the same time the application will create 50 instances x 5 calls =250
+
+               Scoped: IoC container will create an instance of the specified service type once per request and will be shared in a single request.
+            note: if during the chekout method in the ItemsService, you ask for the ItemsRepository 5x, only 1 instance will be created for me
+            note: if there are 50 users doing checkout at the same time the application will create 50 instances x 1 = 50
+            */
+
+            services.AddScoped<ItemsRepository>();
+            services.AddScoped<ItemsServices>();
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

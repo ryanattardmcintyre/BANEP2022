@@ -6,17 +6,31 @@
 
 <h1>Create</h1>
 
-<h4>CreateItemViewModel</h4>
+
+
+<br />
+@if (string.IsNullOrEmpty(ViewBag.Message) == false)
+{ 
+    <div class="alert alert-primary" role="alert">
+        @ViewBag.Message
+    </div>
+}
+
+else if (string.IsNullOrEmpty(ViewBag.Error) == false)
+{
+        <div class="alert alert-danger" role="alert">
+            @ViewBag.Error
+        </div>
+}
+
+
+
 <hr />
 <div class="row">
     <div class="col-md-4">
         <form asp-action="Create">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="Stock" class="control-label"></label>
-                <input asp-for="Stock" class="form-control" />
-                <span asp-validation-for="Stock" class="text-danger"></span>
-            </div>
+
             <div class="form-group">
                 <label asp-for="Name" class="control-label"></label>
                 <input asp-for="Name" class="form-control" />
@@ -37,6 +51,14 @@
                 <input asp-for="CategoryId" class="form-control" />
                 <span asp-validation-for="CategoryId" class="text-danger"></span>
             </div>
+
+            <div class="form-group">
+                <label asp-for="Stock" class="control-label"></label>
+                <input asp-for="Stock" class="form-control" />
+                <span asp-validation-for="Stock" class="text-danger"></span>
+            </div>
+
+
             <div class="form-group">
                 <label asp-for="ImagePath" class="control-label"></label>
                 <input asp-for="ImagePath" class="form-control" />
