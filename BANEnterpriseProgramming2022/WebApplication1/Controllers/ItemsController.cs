@@ -49,5 +49,25 @@ namespace WebApplication1.Controllers
             }
             return View();
         }
+
+
+        public IActionResult List() //query type
+        {
+            var list = itemsService.GetItems();
+            return View(list); //note: to present data on the page...you need to pass the object within the View
+        }
+
+        public IActionResult Details(int id)
+        {
+            var item = itemsService.GetItem(id);
+            if (item == null)
+            {
+                //redirect the user not to the Details page but to List page
+                ViewBag.Error = "Item doesn't exist";
+                var list = itemsService.GetItems();
+                return View("List", list); //Details View
+            }
+            else  return View(item); //Details View
+        }
     }
 }

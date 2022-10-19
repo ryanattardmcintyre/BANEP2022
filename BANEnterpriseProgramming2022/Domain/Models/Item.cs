@@ -29,6 +29,6 @@ namespace Domain.Models
 
         public string ImagePath { get; set; }
 
-        public string Supplier { get; set; }
+//        public string Supplier { get; set; }
     }
 }
