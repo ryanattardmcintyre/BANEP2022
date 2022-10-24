@@ -59,6 +59,8 @@ namespace WebApplication1
 
             services.AddScoped<ItemsRepository>();
             services.AddScoped<ItemsServices>();
+            services.AddScoped<CategoriesRepository>();
+            services.AddScoped<CategoriesServices>();
 
         }
 

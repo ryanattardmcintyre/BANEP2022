@@ -80,7 +80,29 @@ namespace BusinessLogic.Services
             return GetItems().SingleOrDefault(x => x.Id == id);
         }
 
-       /* public IQueryable<ListItemsViewModel> Search(string keyword)
-        { }*/
+         public IQueryable<ListItemsViewModel> Search(string keyword)
+        {
+            return GetItems().Where(x => x.Name.Contains(keyword)); //like %%
+        }
+
+        public IQueryable<ListItemsViewModel> Search(string keyword, double minPrice, double maxPrice)
+        {
+            //if using a List<...>
+            //1st call GetItems() //opened a connection with the database, fetched all items from the databse and placed those in memory
+            //2nd call Where(x=> x.Name.Contains (...)) //filtering would have happened inside the server's memory
+            //3rd call Where(x=> x.Price >= minPrice && x.Price <= maxPrice); //further filtering would have happened inside the server's memory
+
+            //if using IQueryable<...>
+            //1st call GetItems() //a linq statement would have been prepared to get all items BUT not executed yet
+            //2nd call Where(x=> x.Name.Contains (...)) //amending the prepared linq statement in (step 1)
+            //3rd call Where(x=> x.Price >= minPrice && x.Price <= maxPrice); //amending the prepared linq statement in (step 1 & 2)
+            //opening the connection with the database only happens when passing the Iqueryable into the View
+            //IQueryable is more efficient because it opens the connection only once in the end, retrieving only a filtered list
+
+            return Search(keyword).Where(x => x.Price >= minPrice && x.Price <= maxPrice);
+
+            
+        }
+
     }
 }
