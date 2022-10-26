@@ -1,5 +1,7 @@
 ﻿using BusinessLogic.Services;
 using BusinessLogic.ViewModels;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -12,12 +14,13 @@ namespace WebApplication1.Controllers
     {
         private ItemsServices itemsService;
         private CategoriesServices categoriesService;
-
+        private IWebHostEnvironment hostService;
         //constructor injection is applied so that any creation of instances that one needs (aka the service class)
         //in the class to be consumed (aka client class) in a central place (for better efficiency)
         //that happens to be the class startup.cs (aka the injector class)
-        public ItemsController(ItemsServices _itemsService, CategoriesServices _categoriesService)
+        public ItemsController(ItemsServices _itemsService, CategoriesServices _categoriesService, IWebHostEnvironment _hostService)
         {
+            hostService = _hostService;
             itemsService = _itemsService;
             categoriesService = _categoriesService;
         }
@@ -40,18 +43,51 @@ namespace WebApplication1.Controllers
         }
 
         [HttpPost] //because when you submit a form you are triggering a Post
-        public IActionResult Create(CreateItemViewModel data) //<<<< same class used by the template to create the View
+        public IActionResult Create(CreateItemViewModel data, IFormFile file) //<<<< same class used by the template to create the View
         {
             //to do Show ViewBag in page
 
             try
             {
+                //-------------------------- Upload of image --------------------------
+
+
+                //1. check whether image has been successfully received
+
+                if(file != null)
+                {
+
+                    //2. generate a unique filename to replace the original filename e.g. Guid
+                    string uniqueFilename = Guid.NewGuid().ToString() + System.IO.Path.GetExtension(file.FileName);
+
+                    //3. identify where to save the uploaded image & you need to get the absolute Path
+                    //e.g. absolutePath C:\Users\attar\source\repos\BANEP2022\BANEnterpriseProgramming2022\WebApplication1\wwwroot\Images\
+                    //you may get the absolutePath from a built-in Framework service (class) called IWebHostEnvironment
+                    string absolutePath = hostService.WebRootPath + @"\Images\" + uniqueFilename;
+
+                    //4. save the file into the identified absolutePath
+
+                    using (var destinationFile = System.IO.File.Create(absolutePath)) //creates a file where the data will be transferred to
+                    {
+                        file.CopyTo(destinationFile); //actually copies the data from the user uploading file to the destination file
+                    } //closes all open files
+
+                    //5. set the newly filename + Images folder path into the object that's going to be saved into db
+                    data.ImagePath = "/Images/" + uniqueFilename;
+
+                }
+
+
+                //------------------------------saving in db---------------------------------
+
                 itemsService.AddNewItem(data.Name, data.Description, data.Price, data.CategoryId, data.Stock, data.ImagePath);
                 //call the ItemsService AddItem method
 
                 //ViewBag is a dynamic object -it is constructed in realtime (in other words on-the-fly)
                 
-                ViewBag.Message = "Item added successfully";
+                 ViewBag.Message = "Item added successfully";
+                //Alternatively:
+                //TempData["Message"] = "Item added successfully";
             }
             catch(Exception ex)
             {
@@ -60,11 +96,11 @@ namespace WebApplication1.Controllers
                 ViewBag.Error = "Item was not added successfully. Please check inputs";
             }
 
-            //var listOfCategories = categoriesService.GetCategories();
-            //CreateItemViewModel myModel = new CreateItemViewModel();
-            //myModel.Categories = listOfCategories;
-            //return View(myModel);
-            return RedirectToAction("Create");
+           var listOfCategories = categoriesService.GetCategories();
+            CreateItemViewModel myModel = new CreateItemViewModel();
+            myModel.Categories = listOfCategories;
+            return View(myModel); 
+            // return RedirectToAction("Create"); //ViewBag doesn't surive redirections
 
         }
 

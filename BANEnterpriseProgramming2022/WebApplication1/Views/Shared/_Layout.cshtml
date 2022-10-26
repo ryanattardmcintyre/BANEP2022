@@ -33,6 +33,16 @@
     <div class="container">
         <main role="main" class="pb-3">
 
+
+            @*@if (TempData["Message"] !=null)
+            {
+                //this has to be uncommented if you have used TempData in the controller instead of ViewBag
+
+                <div class="alert alert-primary" role="alert">
+                    @TempData["Message"].ToString();
+                </div>
+            }*@
+
             @if (string.IsNullOrEmpty(ViewBag.Message) == false)
             {
                 <div class="alert alert-primary" role="alert">
