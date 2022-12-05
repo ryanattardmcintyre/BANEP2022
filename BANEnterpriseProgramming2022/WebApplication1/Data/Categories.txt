@@ -1,0 +1,4 @@
+﻿1;Printers
+2;Mobiles
+3;Peripherals
+4;FromTextFile

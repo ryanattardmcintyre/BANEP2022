@@ -1,6 +1,8 @@
 using BusinessLogic.Services;
 using DataAccess.Context;
 using DataAccess.Repositories;
+using Domain.Interfaces;
+using Domain.Models;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -12,6 +14,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -34,7 +37,7 @@ namespace WebApplication1
                 options.UseSqlServer(
                     Configuration.GetConnectionString("DefaultConnection")));
            
-            services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
+            services.AddDefaultIdentity<CustomUser>(options => options.SignIn.RequireConfirmedAccount = false)
                 .AddEntityFrameworkStores<ShoppingCartContext>();
            
             services.AddControllersWithViews();
@@ -57,9 +60,18 @@ namespace WebApplication1
             note: if there are 50 users doing checkout at the same time the application will create 50 instances x 1 = 50
             */
 
+            FileInfo fi = new FileInfo(@"C:\Users\attar\source\repos\BANEP2022\BANEnterpriseProgramming2022\WebApplication1\Data\Categories.txt");
+
             services.AddScoped<ItemsRepository>();
             services.AddScoped<ItemsServices>();
-            services.AddScoped<CategoriesRepository>();
+           
+            //services.AddScoped<ICategoriesRepository, CategoriesFileRepository>(provider =>
+              // new CategoriesFileRepository(fi));
+
+            //when you use interfaces to indicate to the injector class what type of object needs
+            //to be initialized, you openning for more variations of the implementations you made
+            //thus scaling up without a major rework of your architecture
+            services.AddScoped<ICategoriesRepository, CategoriesRepository>();
             services.AddScoped<CategoriesServices>();
 
         }

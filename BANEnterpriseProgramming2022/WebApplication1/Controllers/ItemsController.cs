@@ -129,5 +129,12 @@ namespace WebApplication1.Controllers
             var list = itemsService.Search(keyword);
             return View("List", list);
         }
+
+        public IActionResult Delete(int id)
+        {
+            itemsService.DeleteItem(id);
+            return RedirectToAction("List");
+
+        }
     }
 }

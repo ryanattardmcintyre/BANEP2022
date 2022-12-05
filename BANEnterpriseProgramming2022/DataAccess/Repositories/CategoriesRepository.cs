@@ -1,4 +1,5 @@
 ﻿using DataAccess.Context;
+using Domain.Interfaces;
 using Domain.Models;
 using System;
 using System.Collections.Generic;
@@ -7,7 +8,8 @@ using System.Text;
 
 namespace DataAccess.Repositories
 {
-    public class CategoriesRepository
+    //this reads/writes data to /from db
+    public class CategoriesRepository: ICategoriesRepository
     {
         private ShoppingCartContext context;
         public CategoriesRepository(ShoppingCartContext _context)
