@@ -1,5 +1,6 @@
 ﻿using BusinessLogic.Services;
 using BusinessLogic.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -27,6 +28,7 @@ namespace WebApplication1.Controllers
 
 
         [HttpGet] //the get method, opens a View with blank controls
+        [Authorize]
         public IActionResult Create()
         {
             //need to get a list of categories and pass that list to the View
@@ -43,51 +45,64 @@ namespace WebApplication1.Controllers
         }
 
         [HttpPost] //because when you submit a form you are triggering a Post
+        [Authorize]
         public IActionResult Create(CreateItemViewModel data, IFormFile file) //<<<< same class used by the template to create the View
         {
             //to do Show ViewBag in page
 
+            string username = User.Identity.Name;
+            
             try
             {
-                //-------------------------- Upload of image --------------------------
 
+                /*int min = categoriesService.GetCategories().Min(x => x.Id);
+                int max = categoriesService.GetCategories().Max(x => x.Id);
+                if (data.CategoryId < min || data.CategoryId > max)
+                    ModelState.AddModelError("CategoryId", "Category not valid");
+                */
 
-                //1. check whether image has been successfully received
-
-                if(file != null)
+                if (ModelState.IsValid) //this will trigger the validators which i have applied in the ViewModel
                 {
 
-                    //2. generate a unique filename to replace the original filename e.g. Guid
-                    string uniqueFilename = Guid.NewGuid().ToString() + System.IO.Path.GetExtension(file.FileName);
+                    //-------------------------- Upload of image --------------------------
 
-                    //3. identify where to save the uploaded image & you need to get the absolute Path
-                    //e.g. absolutePath C:\Users\attar\source\repos\BANEP2022\BANEnterpriseProgramming2022\WebApplication1\wwwroot\Images\
-                    //you may get the absolutePath from a built-in Framework service (class) called IWebHostEnvironment
-                    string absolutePath = hostService.WebRootPath + @"\Images\" + uniqueFilename;
+                    //1. check whether image has been successfully received
 
-                    //4. save the file into the identified absolutePath
-
-                    using (var destinationFile = System.IO.File.Create(absolutePath)) //creates a file where the data will be transferred to
+                    if (file != null)
                     {
-                        file.CopyTo(destinationFile); //actually copies the data from the user uploading file to the destination file
-                    } //closes all open files
 
-                    //5. set the newly filename + Images folder path into the object that's going to be saved into db
-                    data.ImagePath = "/Images/" + uniqueFilename;
+                        //2. generate a unique filename to replace the original filename e.g. Guid
+                        string uniqueFilename = Guid.NewGuid().ToString() + System.IO.Path.GetExtension(file.FileName);
 
+                        //3. identify where to save the uploaded image & you need to get the absolute Path
+                        //e.g. absolutePath C:\Users\attar\source\repos\BANEP2022\BANEnterpriseProgramming2022\WebApplication1\wwwroot\Images\
+                        //you may get the absolutePath from a built-in Framework service (class) called IWebHostEnvironment
+                        string absolutePath = hostService.WebRootPath + @"\Images\" + uniqueFilename;
+
+                        //4. save the file into the identified absolutePath
+
+                        using (var destinationFile = System.IO.File.Create(absolutePath)) //creates a file where the data will be transferred to
+                        {
+                            file.CopyTo(destinationFile); //actually copies the data from the user uploading file to the destination file
+                        } //closes all open files
+
+                        //5. set the newly filename + Images folder path into the object that's going to be saved into db
+                        data.ImagePath = "/Images/" + uniqueFilename;
+
+                    }
+
+
+                    //------------------------------saving in db---------------------------------
+
+                    itemsService.AddNewItem(data.Name, data.Description, data.Price, data.CategoryId, data.Stock, data.ImagePath);
+                    //call the ItemsService AddItem method
+
+                    //ViewBag is a dynamic object -it is constructed in realtime (in other words on-the-fly)
+
+                    ViewBag.Message = "Item added successfully";
+                    //Alternatively:
+                    //TempData["Message"] = "Item added successfully";
                 }
-
-
-                //------------------------------saving in db---------------------------------
-
-                itemsService.AddNewItem(data.Name, data.Description, data.Price, data.CategoryId, data.Stock, data.ImagePath);
-                //call the ItemsService AddItem method
-
-                //ViewBag is a dynamic object -it is constructed in realtime (in other words on-the-fly)
-                
-                 ViewBag.Message = "Item added successfully";
-                //Alternatively:
-                //TempData["Message"] = "Item added successfully";
             }
             catch(Exception ex)
             {
@@ -129,12 +144,19 @@ namespace WebApplication1.Controllers
             var list = itemsService.Search(keyword);
             return View("List", list);
         }
-
+        [Authorize]
         public IActionResult Delete(int id)
         {
             itemsService.DeleteItem(id);
             return RedirectToAction("List");
 
         }
+
+        public IActionResult Edit(int id) { }
+
+        [HttpPost]
+        public IActionResult Edit(int id, CreateItemViewModel data) { }
+
+
     }
 }

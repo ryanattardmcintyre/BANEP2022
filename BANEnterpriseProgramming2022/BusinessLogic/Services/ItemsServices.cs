@@ -104,5 +104,21 @@ namespace BusinessLogic.Services
             
         }
 
+        public void EditItem(int id, CreateItemViewModel model)
+        {
+            itemRepository.EditItem(
+                 new Domain.Models.Item()
+                 { Id = id,
+                     Name = model.Name,
+                     Description = model.Description,
+                     CategoryId = model.CategoryId,
+                     ImagePath = model.ImagePath,
+                     Price = model.Price,
+                     Stock = model.Stock
+                 }
+                );
+
+        }
+
     }
 }

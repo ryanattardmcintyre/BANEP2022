@@ -1,4 +1,6 @@
-﻿using System;
+﻿using DataAccess.Repositories;
+using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -14,15 +16,18 @@ namespace BusinessLogic.ViewModels
        
         public int Stock { get; set; }
 
-        [StringLength(100)]
-        [Required]
+        [StringLength(100, ErrorMessage ="Name of item cannot be greater than 100 characters")]
+        [Required(AllowEmptyStrings =false, ErrorMessage ="Name cannot be left blank")]
         public string Name { get; set; }
         public string Description { get; set; }
 
-        [Required]
+        [Required(AllowEmptyStrings = false, ErrorMessage = "Price cannot be left blank")]
+        [Range(1, 50000, ErrorMessage ="Price has got to be between 1 and 50000 euros")]
         public double Price { get; set; }
 
-  
+        
+
+        [CategoryIdValidation()]
         public int CategoryId { get; set; }
 
 

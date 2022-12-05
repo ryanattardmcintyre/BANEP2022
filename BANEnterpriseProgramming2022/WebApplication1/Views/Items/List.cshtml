@@ -50,10 +50,13 @@
                 </td>
                 <td>
                     @Html.ActionLink("More Info", "Details", "Items", new { id = item.Id })
-                    | 
-                    <a href="/Items/Delete?id=@item.Id" onclick="return window.confirm('Are you sure?')">Delete</a>
-                    @*<a href="/Items/Details">More Info</a>*@
-                </td>
+                    |
+                    @if (User.Identity.IsAuthenticated == true)
+                    {
+                        <a href="/Items/Delete?id=@item.Id" onclick="return window.confirm('Are you sure?')">Delete</a>
+                        @*<a href="/Items/Details">More Info</a>*@
+                    }
+                    </td>
             </tr>
         }
     </tbody>

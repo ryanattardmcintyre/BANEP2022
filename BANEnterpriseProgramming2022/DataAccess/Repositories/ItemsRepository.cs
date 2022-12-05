@@ -62,6 +62,19 @@ namespace DataAccess.Repositories
             context.SaveChanges();
         }
         
+        public void EditItem(Item updatedItem)
+        {
+            var originalItem = GetItem(updatedItem.Id);
+
+            originalItem.Name = updatedItem.Name;
+            originalItem.Description = updatedItem.Description;
+            originalItem.CategoryId = updatedItem.CategoryId;
+            originalItem.ImagePath = updatedItem.ImagePath;
+            originalItem.Price = updatedItem.Price;
+            originalItem.Stock = updatedItem.Stock;
+
+            context.SaveChanges();
+        }
 
     }
 }
