@@ -13,7 +13,7 @@ namespace BusinessLogic.ViewModels
     // we will be hiding any properties containing sensitive data
     public class CreateItemViewModel
     {
-       
+       public int Id { get; set; }
         public int Stock { get; set; }
 
         [StringLength(100, ErrorMessage ="Name of item cannot be greater than 100 characters")]

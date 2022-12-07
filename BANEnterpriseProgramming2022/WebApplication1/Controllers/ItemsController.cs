@@ -152,10 +152,86 @@ namespace WebApplication1.Controllers
 
         }
 
-        public IActionResult Edit(int id) { }
+        public IActionResult Edit(int id) {
+
+            var currentProduct = itemsService.GetItem(id);
+
+            CreateItemViewModel myModel = new CreateItemViewModel()
+            {
+                Id = currentProduct.Id,
+                CategoryId = categoriesService.GetCategories().SingleOrDefault(x=>x.Title==currentProduct.Category).Id,
+                Description = currentProduct.Description,
+                ImagePath = currentProduct.ImagePath,
+                Name = currentProduct.Name,
+                Price = currentProduct.Price,
+                Stock = currentProduct.Stock,
+                 Categories = categoriesService.GetCategories()
+            };
+
+            return View(myModel);
+        }
 
         [HttpPost]
-        public IActionResult Edit(int id, CreateItemViewModel data) { }
+        public IActionResult Edit(int id, CreateItemViewModel data, IFormFile file) {
+
+          //  string username = User.Identity.Name;
+
+            try
+            {
+                if (ModelState.IsValid)  
+                {
+                    if (file != null)
+                    {
+
+                        //2. generate a unique filename to replace the original filename e.g. Guid
+                        string uniqueFilename = Guid.NewGuid().ToString() + System.IO.Path.GetExtension(file.FileName);
+
+                        //3. identify where to save the uploaded image & you need to get the absolute Path
+                        //e.g. absolutePath C:\Users\attar\source\repos\BANEP2022\BANEnterpriseProgramming2022\WebApplication1\wwwroot\Images\
+                        //you may get the absolutePath from a built-in Framework service (class) called IWebHostEnvironment
+                        string absolutePath = hostService.WebRootPath + @"\Images\" + uniqueFilename;
+
+                        //4. save the file into the identified absolutePath
+
+                        using (var destinationFile = System.IO.File.Create(absolutePath)) //creates a file where the data will be transferred to
+                        {
+                            file.CopyTo(destinationFile); //actually copies the data from the user uploading file to the destination file
+                        } //closes all open files
+
+                        //5. set the newly filename + Images folder path into the object that's going to be saved into db
+                        data.ImagePath = "/Images/" + uniqueFilename;
+
+                        var oldFilename = itemsService.GetItem(id).ImagePath;
+                        //delete the old image
+                        if(System.IO.File.Exists(hostService.WebRootPath + @"\Images\" + System.IO.Path.GetFileName(oldFilename)))
+                        {
+                            System.IO.File.Delete(hostService.WebRootPath + @"\Images\" + System.IO.Path.GetFileName(oldFilename));
+                        }
+                    }
+
+
+                    //------------------------------saving in db---------------------------------
+
+                    itemsService.EditItem(id, data);
+                     
+                    ViewBag.Message = "Item updated successfully";
+                }
+            }
+            catch (Exception ex)
+            {
+                //log the error
+
+                ViewBag.Error = "Item was not updated successfully. Please check inputs";
+            }
+
+            /*           var listOfCategories = categoriesService.GetCategories();
+                       CreateItemViewModel myModel = new CreateItemViewModel();
+                       myModel.Categories = listOfCategories;
+                       return View(myModel);*/
+
+            return RedirectToAction("List");
+    
+        }
 
 
     }
